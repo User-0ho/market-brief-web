@@ -3,35 +3,99 @@
 <head>
   <meta charset="UTF-8" />
   <title>AI Market Brief</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0b1220;
+      color: #e5e7eb;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .header {
+      margin-bottom: 30px;
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+
+    .subtitle {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
+    .card {
+      background: #111827;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .loading {
+      color: #94a3b8;
+      font-size: 14px;
+    }
+
+    .footer {
+      margin-top: 30px;
+      font-size: 12px;
+      color: #64748b;
+      text-align: center;
+    }
+
+  </style>
 </head>
-<body style="background:#0f172a;color:#e2e8f0;padding:40px;">
 
-<h1>📊 AI Market Brief</h1>
+<body>
 
-<button onclick="loadReport()">오늘 리포트 가져오기</button>
+<div class="container">
 
-<pre id="output">버튼을 눌러주세요</pre>
+  <div class="header">
+    <div class="title">📊 AI Market Brief</div>
+    <div class="subtitle">실시간 미국 주식 시장 분석 리포트</div>
+  </div>
+
+  <div class="card" id="output">
+    <div class="loading">리포트를 불러오는 중...</div>
+  </div>
+
+  <div class="footer">
+    Powered by AI Market Analysis Engine
+  </div>
+
+</div>
 
 <script>
 async function loadReport() {
   try {
-    const res = await fetch("https://market-brief-server.onrender.com/news", {
-      method: "GET",
-      mode: "cors"
-    });
-
+    const res = await fetch("https://market-brief-server.onrender.com/news");
     const data = await res.json();
 
     if (data.report) {
       document.getElementById("output").innerText = data.report;
     } else {
-      document.getElementById("output").innerText = JSON.stringify(data);
+      document.getElementById("output").innerText = "에러: " + JSON.stringify(data);
     }
 
   } catch (err) {
-    document.getElementById("output").innerText = "에러 발생: " + err;
+    document.getElementById("output").innerText = "서버 연결 오류: " + err;
   }
 }
+
+// 🔥 페이지 열리면 자동 실행
+loadReport();
 </script>
 
 </body>
