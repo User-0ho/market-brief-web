@@ -1,101 +1,86 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>AI Market Brief</title>
+<meta charset="UTF-8">
+<title>AI Market Brief</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #0b1220;
-      color: #e5e7eb;
-    }
+<style>
+body {
+  background:#0b1220;
+  color:#e5e7eb;
+  font-family:sans-serif;
+  padding:30px;
+}
 
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
+.card {
+  background:#111827;
+  padding:20px;
+  margin-bottom:20px;
+  border-radius:12px;
+}
 
-    .header {
-      margin-bottom: 30px;
-    }
-
-    .title {
-      font-size: 28px;
-      font-weight: 700;
-      color: #38bdf8;
-    }
-
-    .subtitle {
-      color: #94a3b8;
-      font-size: 14px;
-      margin-top: 5px;
-    }
-
-    .card {
-      background: #111827;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      line-height: 1.6;
-      white-space: pre-wrap;
-    }
-
-    .loading {
-      color: #94a3b8;
-      font-size: 14px;
-    }
-
-    .footer {
-      margin-top: 30px;
-      font-size: 12px;
-      color: #64748b;
-      text-align: center;
-    }
-
-  </style>
+.item {
+  cursor:pointer;
+  padding:10px;
+  border-bottom:1px solid #333;
+}
+</style>
 </head>
 
 <body>
 
-<div class="container">
+<h1>📊 AI Market Brief</h1>
 
-  <div class="header">
-    <div class="title">📊 AI Market Brief</div>
-    <div class="subtitle">실시간 미국 주식 시장 분석 리포트</div>
-  </div>
+<div id="latest" class="card"></div>
 
-  <div class="card" id="output">
-    <div class="loading">리포트를 불러오는 중...</div>
-  </div>
-
-  <div class="footer">
-    Powered by AI Market Analysis Engine
-  </div>
-
-</div>
+<h2>📚 과거 리포트</h2>
+<div id="history" class="card"></div>
 
 <script>
-async function loadReport() {
-  try {
-    const res = await fetch("https://market-brief-server.onrender.com/news");
-    const data = await res.json();
+const API = "https://market-brief-server.onrender.com";
 
-    if (data.report) {
-      document.getElementById("output").innerText = data.report;
-    } else {
-      document.getElementById("output").innerText = "에러: " + JSON.stringify(data);
-    }
+// 최신
+async function loadLatest() {
+  const res = await fetch(API + "/news/latest");
+  const data = await res.json();
 
-  } catch (err) {
-    document.getElementById("output").innerText = "서버 연결 오류: " + err;
-  }
+  if (data.error) return;
+
+  document.getElementById("latest").innerHTML = `
+    <h2>📌 최신 리포트</h2>
+    <pre>${data.report}</pre>
+    <p>조회수: ${data.views}</p>
+  `;
 }
 
-// 🔥 페이지 열리면 자동 실행
-loadReport();
+// 목록
+async function loadHistory() {
+  const res = await fetch(API + "/news/history");
+  const data = await res.json();
+
+  document.getElementById("history").innerHTML =
+    data.reverse().map(r => `
+      <div class="item" onclick="loadDetail('${r.id}')">
+        📄 ${r.createdAt}
+        (조회수: ${r.views})
+      </div>
+    `).join("");
+}
+
+// 상세
+async function loadDetail(id) {
+  const res = await fetch(API + "/news/" + id);
+  const data = await res.json();
+
+  document.getElementById("latest").innerHTML = `
+    <h2>📌 리포트 상세 (${data.level})</h2>
+    <pre>${data.report}</pre>
+    <p>조회수: ${data.views}</p>
+  `;
+}
+
+loadLatest();
+loadHistory();
 </script>
 
 </body>
